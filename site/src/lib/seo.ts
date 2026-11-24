@@ -80,7 +80,11 @@ export function jsonLdHtml(data: unknown): string {
     .replace(/&/g, "\\u0026");
 }
 
-/** Product + Offer JSON-LD */
+/**
+ * Product + Offer JSON-LD.
+ * Qiymət yoxdursa təklif (offers) yazılmır: boş qiymət Google üçün xətadır.
+ * Google Product üçün təklif və ya rəy tələb edir, ikisi də yoxdursa null qaytarılır.
+ */
 export function productJsonLd(p: {
   title?: string;
   description?: string;
@@ -95,6 +99,10 @@ export function productJsonLd(p: {
   rating?: number;
   reviewCount?: number;
 }) {
+  const price = p.discountedPrice || p.price;
+  const hasReviews = Boolean(p.reviewCount && p.rating);
+  if (!price && !hasReviews) return null;
+
   return {
     "@context": "https://schema.org",
     "@type": "Product",
@@ -105,7 +113,7 @@ export function productJsonLd(p: {
       : {}),
     ...(p.brand ? { brand: { "@type": "Brand", name: p.brand } } : {}),
     ...(p.sku ? { sku: p.sku } : {}),
-    ...(p.reviewCount && p.rating
+    ...(hasReviews
       ? {
           aggregateRating: {
             "@type": "AggregateRating",
@@ -114,16 +122,20 @@ export function productJsonLd(p: {
           },
         }
       : {}),
-    offers: {
-      "@type": "Offer",
-      url: p.url,
-      priceCurrency: "AZN",
-      price: String(p.discountedPrice ?? p.price ?? ""),
-      availability:
-        p.inStock === false
-          ? "https://schema.org/PreOrder"
-          : "https://schema.org/InStock",
-      seller: { "@type": "Organization", name: SITE_NAME },
-    },
+    ...(price
+      ? {
+          offers: {
+            "@type": "Offer",
+            url: p.url,
+            priceCurrency: "AZN",
+            price: String(price),
+            availability:
+              p.inStock === false
+                ? "https://schema.org/PreOrder"
+                : "https://schema.org/InStock",
+            seller: { "@type": "Organization", name: SITE_NAME },
+          },
+        }
+      : {}),
   };
 }

@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { buildMetadata, jsonLdHtml, productJsonLd, shareImageUrl } from "@/lib/seo";
+import { buildMetadata, shareImageUrl } from "@/lib/seo";
 import { formatCharacteristicValue } from "@/lib/characteristicValue";
 import { redirectToLocalizedSlug } from "@/lib/localizedSlug";
 import { CONTACT, SITE_URL } from "@/config/site";
@@ -18,6 +18,7 @@ import ProductFacts from "../common/ProductFacts";
 import ProductBundle from "../common/ProductBundle";
 import ProductReviews from "../reviews/ProductReviews";
 import CompareButton from "../common/CompareButton";
+import ProductJsonLd from "../common/ProductJsonLd";
 import AddToCartButton from "../common/AddToCartButton";
 
 const roboto = Roboto({ subsets: ["latin"] });
@@ -100,24 +101,17 @@ const SectionDetailPage = async ({
       <div className="mt-4">
         <CompareButton product={product} variant="inline" />
       </div>
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{
-          __html: jsonLdHtml(
-            productJsonLd({
-              title,
-              description,
-              image: shareImageUrl(image?.src),
-              brand: product?.brand?.name,
-              sku: product?.sku,
-              rating: product?.rating,
-              reviewCount: product?.reviewCount,
-              price,
-              discountedPrice,
-              url: `${SITE_URL}/${locale}/${section}/${product?.slug ?? id}`,
-            })
-          ),
-        }}
+      <ProductJsonLd
+        title={title}
+        description={description}
+        image={shareImageUrl(image?.src)}
+        brand={product?.brand?.name}
+        sku={product?.sku}
+        rating={product?.rating}
+        reviewCount={product?.reviewCount}
+        price={price}
+        discountedPrice={discountedPrice}
+        url={`${SITE_URL}/${locale}/${section}/${product?.slug ?? id}`}
       />
       <div className="px-4 py-8 mt-24 max-md:mt-14 max-sm:mt-8">
         <div className="grid md:grid-cols-2 gap-8">

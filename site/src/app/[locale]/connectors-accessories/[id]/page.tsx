@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { buildMetadata, jsonLdHtml, productJsonLd, shareImageUrl } from "@/lib/seo";
+import { buildMetadata, shareImageUrl } from "@/lib/seo";
 import { redirectToLocalizedSlug } from "@/lib/localizedSlug";
 import { SITE_URL } from "@/config/site";
 import type { ProductType } from "@/types";
@@ -19,6 +19,7 @@ import CompareButton from "../../components/common/CompareButton";
 import { Rating } from "@mui/material";
 import { getTranslations } from "next-intl/server";
 import { MdOutlineStarPurple500 } from "react-icons/md";
+import ProductJsonLd from "../../components/common/ProductJsonLd";
 import AddToCartButton from "../../components/common/AddToCartButton";
 
 const roboto = Roboto({ subsets: ["latin"] });
@@ -76,24 +77,17 @@ const Page = async ({ params }: { params: Params }) => {
       <div className="mt-4">
         <CompareButton product={product} variant="inline" />
       </div>
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{
-          __html: jsonLdHtml(
-            productJsonLd({
-              title,
-              description,
-              image: shareImageUrl(image?.src),
-              brand: product?.brand?.name,
-              sku: product?.sku,
-              rating: product?.rating,
-              reviewCount: product?.reviewCount,
-              price,
-              discountedPrice,
-              url: `${SITE_URL}/${locale}/connectors-accessories/${product?.slug ?? id}`,
-            })
-          ),
-        }}
+      <ProductJsonLd
+        title={title}
+        description={description}
+        image={shareImageUrl(image?.src)}
+        brand={product?.brand?.name}
+        sku={product?.sku}
+        rating={product?.rating}
+        reviewCount={product?.reviewCount}
+        price={price}
+        discountedPrice={discountedPrice}
+        url={`${SITE_URL}/${locale}/connectors-accessories/${product?.slug ?? id}`}
       />
       <div className="px-4 py-8 mt-24 max-md:mt-14 max-sm:mt-8">
         <div className="grid md:grid-cols-2 gap-8">
